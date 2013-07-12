@@ -27,6 +27,7 @@ Package Structure
 
 The tools for running experiments have to be as lightweight as possible in order
 to reduce interference with the system under test as much as possible.
+This package contains tools written in Python 2.7, Bash and C.
 
 The main functionalities provided are:
 - measurement synchronization pulses:
@@ -48,7 +49,35 @@ The main functionalities provided are:
 	  drive load. This tool is implemented in Python 2.7 and in the future it
 	  will have a C extension that is capable of generating load on the memory
 	  banks as well.
-- load monitoring
+- machine load monitoring
 	* This functionality monitors the CPU and hard drive load and prints it to
 	  the console as comma separated values. This tool is implemented in
 	  Python 2.7.
+- process CPU monitoring (currently only for linux)
+	* This functionality monitors CPU usage by processes. This tool is written 
+	  in Bash.
+
+
+Usage Examples
+==============
+
+In the examples bellow com3 is the serial port to where the synchronization hardware is connected
+to. Replace that for the port on the system you're using.
+
+Scenario: Idle for 10 seconds and record the timestamps on a file called pulseTimes.txt.
+          Every time you write the timestamps to the same file they get appended.
+
+          bin/seflabtools.[bat|sh] -t synch -m idle -d 10 -s com3 -o pulseTimes.txt
+
+Scenario: Run a command for 10 seconds (forcing it to quit) and record the timestamps on a file
+          called pulseTimes.txt. It is better to always create a script file with the command 
+          you wanna run because this prevents problems with parsing of command line options
+
+          bin/seflabtools.[bat|sh] -t synch -m run -d 10 -s com3 -o pulseTimes.txt -c command.script
+
+Scenario: Run a command until it quits. Same thing as before only you don't specify a duration (-d).
+          If you don't specify an output file for the timestamps they are not printed to a file but
+          still appear on the screen.
+
+          seflabtools.[bat|sh] -t synch -m run -s com3 -c command.bat
+
