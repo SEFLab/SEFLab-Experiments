@@ -59,6 +59,17 @@ collect_data() {
 	done < <(pstree -alp $USER | grep -v -E "{[a-zA-Z]+}" | sed "s/^[^a-zA-Z]*//" | grep -E $INCLUDE)
 }
 
+move_files() {
+	$src=$1
+	$dst=$2
+	
+	cd ${src}
+	for f in $(ls); do
+		mv $f ../${dst}
+	done
+	cd -
+}
+
 sleeptime=0.7
 tmpdir=$OUTPUTDIR/tmp
 mkdir $tmpdir
@@ -70,7 +81,7 @@ while [ $stop -eq 0 ]; do
 	if [ ! -z $ZIP ] & [[ $fulldate =~ [0-9]{8}_[0-9]{4}[0-9]0 ]]; then
         archivedir=$OUTPUTDIR/$fulldate                  
         mkdir $archivedir
-        mv $tmpdir/* $archivedir
+		move_files $tmpdir $archivedir
         nohup ./archive_script "${archivedir}_stat.tar.gz" "$archivedir"
 	fi
 	sleep $sleeptime
