@@ -83,6 +83,7 @@ while [ $stop -eq 0 ]; do
         mkdir $archivedir
 		move_files $tmpdir $archivedir
         nohup ./archive_script "${archivedir}_stat.tar.gz" "$archivedir"
+		continue
 	fi
 	sleep $sleeptime
 done
