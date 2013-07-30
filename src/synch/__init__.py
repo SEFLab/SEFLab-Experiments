@@ -25,6 +25,7 @@ import serial
 import time
 
 from synchronizer import Synchronizer
+from serialdevice import SerialDevice
 
 RUN_MODE = "run"
 IDLE_MODE = "idle"
@@ -97,7 +98,9 @@ def parseArguments(argv):
 def main(argv):
     mode, serialPort, command, duration, outputFile = parseArguments(argv)
     
-    synch = Synchronizer(serialPort, outputFile)
+    serialDeviceWrapper = SerialDevice(serialPort)
+    serialDeviceWrapper.init()
+    synch = Synchronizer(serialDeviceWrapper, outputFile)
     
     if mode == RUN_MODE:
         if duration == None:

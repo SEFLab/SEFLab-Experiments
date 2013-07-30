@@ -77,7 +77,7 @@ if __name__ == '__main__':
     tool = parseArguments(sys.argv)
     
     if tool == "synch":
-        loadgen.synch.main(sys.argv[2:])
+        synch.main(sys.argv[2:])
     elif tool == "loadgen":
         loadgen.main(sys.argv[2:])
     elif tool == "loadmon":

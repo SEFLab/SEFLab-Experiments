@@ -26,6 +26,7 @@ from controller import Controller
 from worker import CPUWorker
 from worker import HDDWorker
 from synch.synchronizer import Synchronizer
+from synch.serialdevice import SerialDevice
 
 def printUsage(cmdName):
     print "Usage: {0} -w <cpu | hdd> -d <duration_in_seconds> [-s <serial_port>] [-o <file>]".format(cmdName)
@@ -86,7 +87,8 @@ def main(argv):
     
     ctr = Controller(duration, worker)
     if serialPort != None:
-        synch = Synchronizer(serialPort, outputFile)
+        serialDeviceWrapper = SerialDevice(serialPort)
+        synch = Synchronizer(serialDeviceWrapper, outputFile)
         print "Generating load with synchronization pulses"
         synch.doRunFunction(ctr.start)
     else:

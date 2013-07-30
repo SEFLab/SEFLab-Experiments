@@ -20,7 +20,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import os
 import psutil
-import serial
 import time
 import multiprocessing
 from datetime import datetime
@@ -33,14 +32,14 @@ class Synchronizer(object):
     pulseDuration = 1
     
     def doSetup(self):
-        self.serial.setRTS(False)
+        self.serialDeviceWrapper.setRTS(False)
         print "RTS set to low... waiting 5 seconds"
         time.sleep(5)
 
     def sendPulse(self, seconds):
-        self.serial.setRTS(True)
+        self.serialDeviceWrapper.setRTS(True)
         time.sleep(seconds)
-        self.serial.setRTS(False)
+        self.serialDeviceWrapper.setRTS(False)
         
     def runCommand(self, command):
         os.system(command)
@@ -112,9 +111,9 @@ class Synchronizer(object):
             f.close()  
         
         
-    def __init__(self, serialPort, outputFile):
+    def __init__(self, outputFile, serialDeviceWrapper):
         '''
         Constructor
         '''
-        self.serial = serial.Serial(serialPort)
+        self.serialDeviceWrapper = serialDeviceWrapper
         self.outputFile = outputFile
