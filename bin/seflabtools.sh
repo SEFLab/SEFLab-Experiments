@@ -20,4 +20,6 @@
 
 toolsBinDir=$(dirname $0)
 
-python ${toolsBinDir}/../seflabtools $*
+cd ${toolsBinDir}/../src
+toolsBinDir=../bin
+python ${toolsBinDir}/main.py $*
