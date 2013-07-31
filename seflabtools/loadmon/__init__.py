@@ -18,13 +18,6 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 '''
 
-import getopt
-import os
-import time
-import psutil
-import sys
-
-from monitor import Monitor
 
 def printUsage(cmdName):
     print "Usage: {0} -d <duration_in_seconds> ...".format(cmdName)
@@ -62,4 +55,12 @@ def main(argv):
     monitor.start(duration)
 
 if __name__ == "__main__":
+    import getopt
+    import os
+    import time
+    import psutil
+    import sys
+    
+    from monitor import Monitor
+
     main(sys.argv)

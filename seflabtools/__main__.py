@@ -17,16 +17,7 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 '''
-
-import sys
-import getopt
-import os.path
-
-import synch
-import loadmon
-import loadgen
-
-
+   
 availableTools = ["synch", "loadgen", "loadmon"]
 
 def printToolOptions(tools):
@@ -39,22 +30,26 @@ def printToolOptions(tools):
     
     return printableTools
 
+def getUsageInformation(cmdName, tools):
+    usageInformation = ""
+    usageInformation += "Usage: {0} [-h] [-t <{1}>] ...".format(cmdName, ''.join(printToolOptions(tools))) + "\n"
+    usageInformation +=  "-h\t\tprints this usage information\n"
+    usageInformation += "-t\t\tselects which tool to use\n"
+    usageInformation += "\nFor tool specific help do:\n"
+    usageInformation += "{0} -t <tool>".format(cmdName) + "\n"
+    return usageInformation
+
 def printUsage(cmdName, tools):
-    print "Usage: {0} [-h] [-t <{1}>] ...".format(cmdName, ''.join(printToolOptions(tools)))
-    print "-h\t\tprints this usage information"
-    print "-t\t\tselects which tool to use"
-    print "\nFor tool specific help do:"
-    print "{0} -t <tool>".format(cmdName)
+    print getUsageInformation(cmdName, tools)
     
 
 def parseArguments(argv):
     cmdName = os.path.basename(argv[0])
+    usageInformation = getUsageInformation(cmdName, availableTools)
     try:
         opts, _ = getopt.getopt(argv[1:], "ht:m:d:s:c:o:w:", ["tool="])
     except getopt.GetoptError as e:
-        print str(e)
-        printUsage(cmdName, availableTools)
-        sys.exit(1)
+        raise exceptions.ArgumentsError(str(e), usageInformation)
     tool = None
     for opt, arg in opts:
         if opt == '-h':
@@ -63,24 +58,32 @@ def parseArguments(argv):
         elif opt in ("-t", "--tool"):
             tool = arg
     if tool == None:
-        print "No tool selected"
-        printUsage(cmdName, availableTools)
-        sys.exit(2)
+        raise exceptions.ArgumentsError("No tool selected\n", usageInformation)
     if tool not in availableTools:
-        print "Selected tool is not available:", tool
-        printUsage(cmdName, availableTools)
-        sys.exit(2)
+        raise exceptions.ArgumentsError("{0} tool is not available\n".format(tool), usageInformation)
     
     return tool
 
 
 if __name__ == '__main__':
-    tool = parseArguments(sys.argv)
+    import sys
+    import getopt
+    import os.path
     
-    if tool == "synch":
-        synch.main(sys.argv[2:])
-    elif tool == "loadgen":
-        loadgen.main(sys.argv[2:])
-    elif tool == "loadmon":
-        loadmon.main(sys.argv[2:])
+    import exceptions
+    import synch
+    import loadmon
+    import loadgen
+
+    try:
+        tool = parseArguments(sys.argv)
+    
+        if tool == "synch":
+            synch.main(sys.argv[2:])
+        elif tool == "loadgen":
+            loadgen.main(sys.argv[2:])
+        elif tool == "loadmon":
+            loadmon.main(sys.argv[2:])
+    except exceptions.ArgumentsError as e:
+        print str(e)
     

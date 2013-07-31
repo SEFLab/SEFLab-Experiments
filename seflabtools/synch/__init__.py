@@ -18,14 +18,6 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 '''
 
-import getopt
-import os
-import sys
-import serial
-import time
-
-from synchronizer import Synchronizer
-from serialdevice import SerialDevice
 
 RUN_MODE = "run"
 IDLE_MODE = "idle"
@@ -111,4 +103,13 @@ def main(argv):
         synch.doIdle(duration)
 
 if __name__ == "__main__":
+    import getopt
+    import os
+    import sys
+    import serial
+    import time
+    
+    from synchronizer import Synchronizer
+    from serialdevice import SerialDevice
+    
     main(sys.argv)

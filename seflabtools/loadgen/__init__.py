@@ -18,15 +18,7 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 '''
 
-import os
-import sys
-import getopt
 
-from controller import Controller
-from worker import CPUWorker
-from worker import HDDWorker
-from synch.synchronizer import Synchronizer
-from synch.serialdevice import SerialDevice
 
 def printUsage(cmdName):
     print "Usage: {0} -w <cpu | hdd> -d <duration_in_seconds> [-s <serial_port>] [-o <file>]".format(cmdName)
@@ -97,6 +89,16 @@ def main(argv):
     
 
 if __name__ == "__main__":
+    import os
+    import sys
+    import getopt
+    
+    from controller import Controller
+    from worker import CPUWorker
+    from worker import HDDWorker
+    from synch.synchronizer import Synchronizer
+    from synch.serialdevice import SerialDevice
+
     main(sys.argv)
 
 
