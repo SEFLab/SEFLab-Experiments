@@ -23,7 +23,7 @@ import sys
 import serial
 import time
 
-from seflabtools.exceptions import ArgumentsError  # @UnresolvedImport
+from seflabtools.exceptions import ArgumentsError
 from synchronizer import Synchronizer
 from serialdevice import SerialDevice
 

@@ -21,7 +21,7 @@ import os
 import sys
 import getopt
 
-from seflabtools.exceptions import ArgumentsError  # @UnresolvedImport
+from seflabtools.exceptions import ArgumentsError
 from controller import Controller
 from worker import CPUWorker
 from worker import HDDWorker
