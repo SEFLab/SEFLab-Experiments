@@ -95,7 +95,7 @@ class Synchronizer(object):
         time.sleep(duration)
         endTime = datetime.now()
         self.sendPulse(Synchronizer.pulseDuration)
-        print "Idle period terminated"
+        print "Idle period terminated."
         self.printTimestamps(startTime, endTime, "idle")
 
     def printTimestamps(self, startTime, endTime, activity):

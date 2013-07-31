@@ -1,7 +1,21 @@
 '''
-Created on Jul 30, 2013
+SEFLab Tools is a software package that provides tools for running experiments in the SEFLab
+as well as for analyzing the resulting data.
 
-@author: mferreira
+Copyright (C) 2013  Software Improvement Group
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <http://www.gnu.org/licenses/>.
 '''
 import unittest
 import sys
@@ -9,7 +23,9 @@ import re
 import multiprocessing
 import time
 import psutil
+import tempfile
 from cStringIO import StringIO
+from datetime import datetime
 
 from synch.synchronizer import Synchronizer
 from synch.serialdevice import AbstractSerialDevice
@@ -88,6 +104,53 @@ class SynchronizerTest(unittest.TestCase):
         self.assertIsNone(self.serialDeviceWrapper.getRTS())
         self.assertEquals([], children)
 
+    def testDoThreadedRun(self):
+        matcher = re.compile("RTS set to low... waiting 5 seconds\n" +
+                             "Starting\n" +
+                             "Application terminated at timeout.\n" +
+                             "Start pulse sent at ' .* '; End Pulse sent at ' .* '\n")
+        synch = Synchronizer(None, self.serialDeviceWrapper)
+        synch.doThreadedRun("sleep 10", 2)
+        
+        self.assertIsNotNone(matcher.match(self.mystdout.getvalue()))
+        self.assertEqual([None, False, True, False, True], self.serialDeviceWrapper.getRTSHistory())
+        self.assertEqual(False, self.serialDeviceWrapper.getRTS())
+    
+    def testDoIdle(self):
+        matcher = re.compile("RTS set to low... waiting 5 seconds\n" +
+                             "Starting\n" +
+                             "Idle period terminated.\n" +
+                             "Start pulse sent at ' .* '; End Pulse sent at ' .* '\n")
+        synch = Synchronizer(None, self.serialDeviceWrapper)
+        synch.doIdle(2)
+        
+        self.assertIsNotNone(matcher.match(self.mystdout.getvalue()))
+        self.assertEqual([None, False, True, False, True], self.serialDeviceWrapper.getRTSHistory())
+        self.assertEqual(False, self.serialDeviceWrapper.getRTS())
+    
+    def testPrintTimestampsNoFile(self):
+        matcher = re.compile("Start pulse sent at ' 2013-07-31 09:14:00 '; End Pulse sent at ' 2013-07-31 10:14:00 '\n")
+        synch = Synchronizer(None, self.serialDeviceWrapper)
+        synch.printTimestamps(datetime(2013, 07, 31, 9, 14, 00), datetime(2013, 07, 31, 10, 14, 00), "test")
+        
+        self.assertIsNotNone(matcher.match(self.mystdout.getvalue()))
+        self.assertIsNone(self.serialDeviceWrapper.getRTS())
+        
+    def testPrintTimestampsWithFile(self):
+        (_, outputFile) = tempfile.mkstemp()
+        matcher = re.compile("Start pulse sent at ' 2013-07-31 09:14:00 '; End Pulse sent at ' 2013-07-31 10:14:00 '\n")
+        synch = Synchronizer(outputFile, self.serialDeviceWrapper)
+        synch.printTimestamps(datetime(2013, 07, 31, 9, 14, 00), datetime(2013, 07, 31, 10, 14, 00), "test")
+        fin = open(outputFile, "r")
+        lines = fin.readlines()
+        
+        self.assertIsNotNone(matcher.match(self.mystdout.getvalue()))
+        self.assertEqual(1, len(lines))
+        self.assertEquals(["2013-07-31 09:14:00, 2013-07-31 10:14:00, test\n"], lines)
+        self.assertIsNone(self.serialDeviceWrapper.getRTS())
+
+        
+        
 class MockSerialDevice(AbstractSerialDevice):
     def init(self):
         self.statusRTS = None;
