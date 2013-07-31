@@ -19,19 +19,19 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 '''
 import unittest
 
-from loadgen import Controller
-from loadgen import CPUWorker
-from loadgen import HDDWorker
+from seflabtools.loadgen import Controller
+from seflabtools.loadgen import CPUWorker
+from seflabtools.loadgen import HDDWorker
 
 class ControllerTest(unittest.TestCase):
 
 
     def testStartCPU(self):
-        ctr = Controller(60, CPUWorker(True))
+        ctr = Controller(10, CPUWorker(True))
         ctr.start()
 
     def testStartHDD(self):
-        ctr = Controller(60, HDDWorker(False))
+        ctr = Controller(10, HDDWorker(False))
         ctr.start()
 
 

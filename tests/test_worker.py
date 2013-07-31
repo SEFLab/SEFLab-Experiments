@@ -20,8 +20,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import unittest
 
-from loadgen import CPUWorker
-from loadgen import HDDWorker
+from seflabtools.loadgen import CPUWorker
+from seflabtools.loadgen import HDDWorker
 
 class WorkerTest(unittest.TestCase):
 
@@ -32,7 +32,7 @@ class WorkerTest(unittest.TestCase):
         
     def testStartHDDWorker(self):
         worker = HDDWorker(False)
-        worker.start(60)
+        worker.start(10)
         
 
 
