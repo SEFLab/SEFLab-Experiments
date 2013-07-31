@@ -24,6 +24,10 @@ class SynchPackageTest(unittest.TestCase):
         
         self.assertIsNotNone(output)
         self.assertNotEqual("", output)
+    
+    def testParseArgumentsNoArguments(self):
+        argv = ["cmdName"]
+        synch.parseArguments(argv)
 
 if __name__ == "__main__":
     #import sys;sys.argv = ['', 'Test.testName']
