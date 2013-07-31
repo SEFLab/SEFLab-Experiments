@@ -31,8 +31,6 @@ class MonitorTest(unittest.TestCase):
         self.assertIsNotNone(matcher.match(self.mystdout.getvalue()))
 
 
-
-
 if __name__ == "__main__":
     # import sys;sys.argv = ['', 'Test.testName']
     unittest.main()
