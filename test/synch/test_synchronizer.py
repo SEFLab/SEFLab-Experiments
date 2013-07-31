@@ -41,7 +41,6 @@ class SynchronizerTest(unittest.TestCase):
 
     def tearDown(self):
         sys.out = self.old_stdout
-        pass
 
 
     def testDoSetup(self):
