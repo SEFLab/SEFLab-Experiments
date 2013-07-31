@@ -1,6 +1,6 @@
 '''
-SEFLab Tools is a software package that provides tools for running experiments in the SEFLab
-as well as for analyzing the resulting data.
+SEFLab Tools is a software package that provides tools for running experiments
+in the SEFLab as well as for analyzing the resulting data.
 
 Copyright (C) 2013  Software Improvement Group
 
@@ -26,33 +26,36 @@ import sys
 from seflabtools.exceptions import ArgumentsError  # @UnresolvedImport
 from monitor import Monitor
 
+
 def getUsageInformation(cmdName):
-    usageInformation = "" 
+    usageInformation = ""
     usageInformation += "Usage: {0} -d <duration_in_seconds> ...\n".format(cmdName)
     usageInformation += "-d\t\tdefines for how long (in seconds) load should be monitored\n"
     usageInformation += "  \t\tif duration is <= 0 then load will be monitored continuously\n"
     return usageInformation
 
+
 def parseArguments(argv):
     cmdName = os.path.basename(argv[0])
     usageInformation = getUsageInformation(cmdName)
-    durationString = ''
+    durationString = None
     try:
-        opts, _ = getopt.getopt(argv[1:],"d:",["duration="])
+        opts, _ = getopt.getopt(argv[1:], "d:", ["duration="])
     except getopt.GetoptError as e:
         raise ArgumentsError(str(e), usageInformation)
     for opt, arg in opts:
         if opt in ("-d", "--duration"):
             durationString = arg
-    if durationString == '':
+    if durationString is None:
         raise ArgumentsError("Need a duration value. If you want to monitor continuously set a duration <= 0", usageInformation)
     duration = 0
     try:
         duration = float(durationString)
     except ValueError, e:
         raise ArgumentsError("Invalid duration: " + str(e), usageInformation)
-    
+
     return duration
+
 
 def main(argv):
     duration = parseArguments(argv)

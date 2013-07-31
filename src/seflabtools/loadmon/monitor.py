@@ -21,8 +21,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 import psutil
 import time
 
+
 class Monitor(object):
-    
+
     def start(self, duration):
         loopCondition = True
         ioStats = psutil.disk_io_counters()
@@ -34,8 +35,8 @@ class Monitor(object):
         start = time.time()
         while loopCondition:
             ioStats = psutil.disk_io_counters()
-            print "{0}, {1}, {2}, {3}, {4}, {5}".format(time.time(), 
-                                       str(psutil.cpu_percent(interval=1)), 
+            print "{0}, {1}, {2}, {3}, {4}, {5}".format(time.time(),
+                                       str(psutil.cpu_percent(interval=1)),
                                        ioStats.read_count - readCount,
                                        ioStats.write_count - writeCount,
                                        ioStats.read_bytes - readBytes,
@@ -46,8 +47,7 @@ class Monitor(object):
             writeBytes = ioStats.write_bytes
             if duration > 0:
                 loopCondition = start + duration > time.time()
-        
-    
+
     def __init__(self):
         '''
         Constructor

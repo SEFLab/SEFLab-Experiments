@@ -23,39 +23,45 @@ import random
 import multiprocessing
 from tempfile import TemporaryFile
 
+
 class Worker(object):
-    
+
+
     def doWork(self):
-        raise NotImplementedError( "Method from abstract class not implemented" )
-    
+        raise NotImplementedError("Method from abstract class not implemented")
+
+
     def startWorkers(self, duration):
         ncpus = multiprocessing.cpu_count()
         processes = []
         for _ in range(1, random.randrange(1, ncpus + 1)):
-            p = multiprocessing.Process(target = self.doWork)
+            p = multiprocessing.Process(target=self.doWork)
             p.start()
             processes.append(p)
         for p in processes:
             p.join()
-        
+
+
     def start(self, duration):
         self.duration = duration
         if self.multiworker:
             self.startWorkers(duration)
         else:
             self.doWork()
-        
+
     def __init__(self):
         '''
         Constructor
         '''
-        raise NotImplementedError( "Constructor of abstract class should not be called" )
-    
+        raise NotImplementedError("Constructor of abstract class should not be called")
+
+
 class CPUWorker(Worker):
     '''
     classdocs
     '''
-    
+
+
     def doWork(self):
         startTime = time.time()
         while time.time() - startTime < self.duration:
@@ -67,19 +73,19 @@ class CPUWorker(Worker):
         '''
         self.multiworker = multiworker
         random.seed(time.time())
-        
+
 class HDDWorker(Worker):
     '''
     classdocs
     '''
     dataChunk = "some data to write to the file"
-    
+
     def doWork(self):
         tmp = TemporaryFile()
         tmp.write(HDDWorker.dataChunk)
         startTime = time.time()
         while time.time() - startTime < self.duration:
-            flag = random.randrange(1,4)
+            flag = random.randrange(1, 4)
             if flag == 1:
                 tmp.seek(0, 2)
                 tmp.write(HDDWorker.dataChunk)
@@ -88,7 +94,7 @@ class HDDWorker(Worker):
                 tmp.write(HDDWorker.dataChunk)
                 tmp.flush()
             elif flag == 2:
-                tmp.seek(0,0)
+                tmp.seek(0, 0)
                 tmp.read(len(HDDWorker.dataChunk))
                 tmp.read(len(HDDWorker.dataChunk))
                 tmp.read(len(HDDWorker.dataChunk))

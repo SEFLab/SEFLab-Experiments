@@ -1,6 +1,6 @@
 '''
-SEFLab Tools is a software package that provides tools for running experiments in the SEFLab
-as well as for analyzing the resulting data.
+SEFLab Tools is a software package that provides tools for running experiments
+in the SEFLab as well as for analyzing the resulting data.
 
 Copyright (C) 2013  Software Improvement Group
 
@@ -27,6 +27,7 @@ import loadgen
 
 availableTools = ["synch", "loadgen", "loadmon"]
 
+
 def getToolOptions(tools):
     ntools = len(tools)
     printableTools = [tools[0], "|"]
@@ -34,17 +35,19 @@ def getToolOptions(tools):
         printableTools.append(tools[i])
         printableTools.append("|")
     printableTools.append(tools[ntools - 1])
-    
+
     return printableTools
+
 
 def getUsageInformation(cmdName, tools):
     usageInformation = ""
     usageInformation += "Usage: {0} [-h] [-t <{1}>] ...".format(cmdName, ''.join(getToolOptions(tools))) + "\n"
-    usageInformation +=  "-h\t\tprints this usage information\n"
+    usageInformation += "-h\t\tprints this usage information\n"
     usageInformation += "-t\t\tselects which tool to use\n"
     usageInformation += "\nFor tool specific help do:\n"
     usageInformation += "{0} -t <tool>".format(cmdName) + "\n"
     return usageInformation
+
 
 def parseArguments(argv):
     cmdName = os.path.basename(argv[0])
@@ -61,15 +64,16 @@ def parseArguments(argv):
             tool = arg
     if tool == None:
         raise ArgumentsError("No tool selected", usageInformation)
-    if tool not in availableTools:
+    if tool not in availableTools and tool is not "help":
         raise ArgumentsError("{0} tool is not available".format(tool), usageInformation)
-    
+
     return tool
+
 
 def main(argv):
     try:
         tool = parseArguments(argv)
-    
+
         if tool == "synch":
             synch.main(argv[2:])
         elif tool == "loadgen":
@@ -80,4 +84,3 @@ def main(argv):
             print getUsageInformation(argv[0], availableTools)
     except ArgumentsError as e:
         print str(e)
-    

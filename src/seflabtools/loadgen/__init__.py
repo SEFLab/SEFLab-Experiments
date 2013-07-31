@@ -37,29 +37,30 @@ def getUsageInformation(cmdName):
     usageInformation += "-s\t\tgenerates synchronization pulses sent through a serial port\n"
     usageInformation += "-o\t\tdefines the file whereto print the timestamps to.\n"
     return usageInformation
-    
+
+
 def parseArguments(argv):
     cmdName = os.path.basename(argv[0])
     usageInformation = getUsageInformation(cmdName)
 
-    hwString = None
+    workerString = None
     durationString = None
     serialPort = None
     outputFile = None
     try:
-        opts, _ = getopt.getopt(argv[1:],"w:d:s:o:",["worker=","duration=","serial=", "output="])
+        opts, _ = getopt.getopt(argv[1:], "w:d:s:o:", ["worker=", "duration=", "serial=", "output="])
     except getopt.GetoptError as e:
         raise ArgumentsError(str(e), usageInformation)
     for opt, arg in opts:
         if opt in ("-w", "--worker"):
-            hwString = arg
+            workerString = arg
         elif opt in ("-d", "--duration"):
             durationString = arg
         elif opt in ("-s", "--serial"):
             serialPort = arg
         elif opt in ("-o", "--output"):
             outputFile = arg
-    if (hwString != 'cpu' and hwString != 'hdd') or durationString == None or durationString == '0':
+    if (workerString != 'cpu' and workerString != 'hdd') or durationString == None or durationString == '0':
         raise ArgumentsError("Hardware has to be one of (cpu | hdd) and a duration greater than 0", usageInformation)
     if outputFile != None:
         try:
@@ -71,18 +72,19 @@ def parseArguments(argv):
         duration = float(durationString)
     except ValueError, e:
         raise ArgumentsError("Invalid duration: " + str(e), usageInformation)
-    
+
     worker = None
-    if hwString == 'cpu':
+    if workerString == 'cpu':
         worker = CPUWorker(True)
     else:
-        worker  = HDDWorker(False)
-    
-    return worker, duration, serialPort, outputFile
+        worker = HDDWorker(False)
+
+    return (worker, duration, serialPort, outputFile)
+
 
 def main(argv):
-    worker, duration, serialPort, outputFile = parseArguments(argv)
-    
+    (worker, duration, serialPort, outputFile) = parseArguments(argv)
+
     ctr = Controller(duration, worker)
     if serialPort != None:
         serialDeviceWrapper = SerialDevice(serialPort)
