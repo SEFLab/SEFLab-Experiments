@@ -17,35 +17,40 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 '''
+import getopt
+import os
+import time
+import psutil
+import sys
 
+from seflabtools.exceptions import ArgumentsError  # @UnresolvedImport
+from monitor import Monitor
 
-def printUsage(cmdName):
-    print "Usage: {0} -d <duration_in_seconds> ...".format(cmdName)
-    print "-d\t\tdefines for how long (in seconds) load should be monitored"
-    print "  \t\tif duration is <= 0 then load will be monitored continuously"
-    
+def getUsageInformation(cmdName):
+    usageInformation = "" 
+    usageInformation += "Usage: {0} -d <duration_in_seconds> ...\n".format(cmdName)
+    usageInformation += "-d\t\tdefines for how long (in seconds) load should be monitored\n"
+    usageInformation += "  \t\tif duration is <= 0 then load will be monitored continuously\n"
+    return usageInformation
+
 def parseArguments(argv):
     cmdName = os.path.basename(argv[0])
+    usageInformation = getUsageInformation(cmdName)
     durationString = ''
     try:
         opts, _ = getopt.getopt(argv[1:],"d:",["duration="])
-    except getopt.GetoptError:
-        printUsage(cmdName)
-        sys.exit(2)
+    except getopt.GetoptError as e:
+        raise ArgumentsError(str(e), usageInformation)
     for opt, arg in opts:
         if opt in ("-d", "--duration"):
             durationString = arg
     if durationString == '':
-        print "Need a duration value. If you want to monitor continuously set a duration <= 0"
-        printUsage(cmdName)
-        sys.exit(3)
+        raise ArgumentsError("Need a duration value. If you want to monitor continuously set a duration <= 0", usageInformation)
     duration = 0
     try:
         duration = float(durationString)
     except ValueError, e:
-        print "Invalid duration:", str(e)
-        printUsage(cmdName)
-        sys.exit(4)
+        raise ArgumentsError("Invalid duration: " + str(e), usageInformation)
     
     return duration
 
@@ -53,14 +58,3 @@ def main(argv):
     duration = parseArguments(argv)
     monitor = Monitor()
     monitor.start(duration)
-
-if __name__ == "__main__":
-    import getopt
-    import os
-    import time
-    import psutil
-    import sys
-    
-    from monitor import Monitor
-
-    main(sys.argv)

@@ -17,30 +17,39 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 '''
+import getopt
+import os
+import sys
+import serial
+import time
 
+from seflabtools.exceptions import ArgumentsError  # @UnresolvedImport
+from synchronizer import Synchronizer
+from serialdevice import SerialDevice
 
 RUN_MODE = "run"
 IDLE_MODE = "idle"
 
-def printUsage(cmdName):
-    print "Usage: {0} -m <mode> -s <serial_port> [-c <command>] [-d <idle duration>] [-o <file>]".format(cmdName)
-    print "-m\t\tsets the tool workign mode to run a command or idle for a period of time."
-    print "  \t\tOptions are", RUN_MODE, "or", IDLE_MODE, "."
-    print "  \t\tif duration is specified with mode run, then the tool will abort execution"
-    print "  \t\tafter the defined number of seconds."
-    print "-s\t\tselects through which serial port to send the synchronization pulse."
-    print "-c\t\tdefines the command to execute."
-    print "-d\t\tdefines the number of seconds the tool should idle for."
-    print "-o\t\tdefines the file whereto print the timestamps to."
+def getUsageInformation(cmdName):
+    usageInformation = ""
+    usageInformation += "Usage: {0} -m <mode> -s <serial_port> [-c <command>] [-d <idle duration>] [-o <file>\n".format(cmdName)
+    usageInformation += "-m\t\tsets the tool workign mode to run a command or idle for a period of time.\n"
+    usageInformation += "  \t\tOptions are {0} or {1}.\n".format(RUN_MODE, IDLE_MODE)
+    usageInformation += "  \t\tif duration is specified with mode run, then the tool will abort execution\n"
+    usageInformation += "  \t\tafter the defined number of seconds.\n"
+    usageInformation += "-s\t\tselects through which serial port to send the synchronization pulse.\n"
+    usageInformation += "-c\t\tdefines the command to execute.\n"
+    usageInformation += "-d\t\tdefines the number of seconds the tool should idle for.\n"
+    usageInformation += "-o\t\tdefines the file whereto usageInformation += the timestamps to."
+    return usageInformation
 
 def parseArguments(argv):
     cmdName = os.path.basename(argv[0])
+    usageInformation = getUsageInformation(cmdName)
     try:
         opts, _ = getopt.getopt(argv[1:],"s:c:m:d:o:",["serial=", "command=", "mode=", "duration=", "output="])
     except getopt.GetoptError as e:
-        print str(e)
-        printUsage(cmdName)
-        sys.exit(1)
+        raise ArgumentsError(str(e), usageInformation)
     mode = None
     serial = None
     command = None
@@ -58,32 +67,23 @@ def parseArguments(argv):
         elif opt in ("-o", "--output"):
             outputFile = arg
     if serial == None:
-        print "No serial port selected"
-        printUsage(cmdName)
-        sys.exit(2)
+        raise ArgumentsError("No serial port selected.", usageInformation)
     if mode == RUN_MODE and command == None:
-        print "Tool set to run command but no command was defined"
-        printUsage(cmdName)
-        sys.exit(3)
+        raise ArgumentsError("Tool set to run command but no command was defined.", usageInformation)
     if mode == IDLE_MODE and durationString == None:
-        print "Tool set to idle but no duration was defined"
-        printUsage(cmdName)
-        sys.exit(4)
+        raise ArgumentsError("Tool set to idle but no duration was defined.", usageInformation)
     if outputFile != None:
         try:
             file(outputFile, 'a').close()
         except IOError as e:
-            print "Can't write to output file for timestamps. Reason: ", str(e)
-            sys.exit(5)
+            raise ArgumentsError("Can't write to output file for timestamps.\n" + str(e), usageInformation)
     
     duration = 0
     if durationString != None:
         try:
             duration = float(durationString)
         except ValueError, e:
-            print "Invalid duration:", str(e)
-            printUsage(cmdName)
-            sys.exit(6)
+            raise ArgumentsError("Invalid duration: " + str(e), usageInformation)
     
     return mode, serial, command, duration, outputFile
     
@@ -101,15 +101,4 @@ def main(argv):
             synch.doThreadedRun(command, duration)
     else:
         synch.doIdle(duration)
-
-if __name__ == "__main__":
-    import getopt
-    import os
-    import sys
-    import serial
-    import time
-    
-    from synchronizer import Synchronizer
-    from serialdevice import SerialDevice
-    
-    main(sys.argv)
+        

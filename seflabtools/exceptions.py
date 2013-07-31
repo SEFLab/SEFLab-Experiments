@@ -27,6 +27,6 @@ class ArgumentsError(Exception):
     def __str__(self):
         output = ""
         if self.cause != None:
-            output += repr(self.cause) + "\n" 
+            output += self.cause + "\n\n"
         output += self.usageInformation
         return output

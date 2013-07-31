@@ -17,18 +17,31 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 '''
+import os
+import sys
+import getopt
+
+from seflabtools.exceptions import ArgumentsError  # @UnresolvedImport
+from controller import Controller
+from worker import CPUWorker
+from worker import HDDWorker
+from seflabtools.synch.synchronizer import Synchronizer  # @UnresolvedImport
+from seflabtools.synch.serialdevice import SerialDevice  # @UnresolvedImport
 
 
-
-def printUsage(cmdName):
-    print "Usage: {0} -w <cpu | hdd> -d <duration_in_seconds> [-s <serial_port>] [-o <file>]".format(cmdName)
-    print "-w\t\tselects the hardware component worker to run"
-    print "-d\t\tdefines for how long (in seconds) load should be generated"
-    print "-s\t\tgenerates synchronization pulses sent through a serial port"
-    print "-o\t\tdefines the file whereto print the timestamps to."
+def getUsageInformation(cmdName):
+    usageInformation = ""
+    usageInformation += "Usage: {0} -w <cpu | hdd> -d <duration_in_seconds> [-s <serial_port>] [-o <file>]\n".format(cmdName)
+    usageInformation += "-w\t\tselects the hardware component worker to run\n"
+    usageInformation += "-d\t\tdefines for how long (in seconds) load should be generated\n"
+    usageInformation += "-s\t\tgenerates synchronization pulses sent through a serial port\n"
+    usageInformation += "-o\t\tdefines the file whereto print the timestamps to.\n"
+    return usageInformation
     
 def parseArguments(argv):
     cmdName = os.path.basename(argv[0])
+    usageInformation = getUsageInformation(cmdName)
+
     hwString = None
     durationString = None
     serialPort = None
@@ -36,9 +49,7 @@ def parseArguments(argv):
     try:
         opts, _ = getopt.getopt(argv[1:],"w:d:s:o:",["worker=","duration=","serial=", "output="])
     except getopt.GetoptError as e:
-        print str(e)
-        printUsage(cmdName)
-        sys.exit(1)
+        raise ArgumentsError(str(e), usageInformation)
     for opt, arg in opts:
         if opt in ("-w", "--worker"):
             hwString = arg
@@ -49,22 +60,17 @@ def parseArguments(argv):
         elif opt in ("-o", "--output"):
             outputFile = arg
     if (hwString != 'cpu' and hwString != 'hdd') or durationString == None or durationString == '0':
-        print "Hardware has to be one of (cpu | hdd) and a duration greater than 0"
-        printUsage(cmdName)
-        sys.exit(2)
+        raise ArgumentsError("Hardware has to be one of (cpu | hdd) and a duration greater than 0", usageInformation)
     if outputFile != None:
         try:
             file(outputFile, 'a').close()
         except IOError as e:
-            print "Can't write to output file for timestamps. Reason: ", str(e)
-            sys.exit(3)
+            raise ArgumentsError("Can't write to output file for timestamps.\n" + str(e), usageInformation)
     duration = 0
     try:
         duration = float(durationString)
     except ValueError, e:
-        print "Invalid duration:", str(e)
-        printUsage(cmdName)
-        sys.exit(3)
+        raise ArgumentsError("Invalid duration: " + str(e), usageInformation)
     
     worker = None
     if hwString == 'cpu':
@@ -86,22 +92,3 @@ def main(argv):
     else:
         print "Generating load"
         ctr.start()
-    
-
-if __name__ == "__main__":
-    import os
-    import sys
-    import getopt
-    
-    from controller import Controller
-    from worker import CPUWorker
-    from worker import HDDWorker
-    from synch.synchronizer import Synchronizer
-    from synch.serialdevice import SerialDevice
-
-    main(sys.argv)
-
-
-        
-
-
