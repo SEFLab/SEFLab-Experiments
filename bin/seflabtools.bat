@@ -16,4 +16,4 @@ REM
 REM You should have received a copy of the GNU General Public License
 REM along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-c:\Python27\python.exe c:\seflabtools\seflabtools %*
+c:\Python27\python.exe c:\seflabtools\bin\main.py %*
