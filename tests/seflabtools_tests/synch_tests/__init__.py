@@ -17,3 +17,24 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 '''
+from seflabtools.synch.serialdevice import AbstractSerialDevice
+
+
+class MockSerialDevice(AbstractSerialDevice):
+
+    def init(self):
+        self.statusRTS = None
+        self.statusRTSHistory = []
+
+    def setRTS(self, level):
+        self.statusRTSHistory.append(self.statusRTS)
+        self.statusRTS = level
+
+    def getRTS(self):
+        return self.statusRTS
+
+    def getRTSHistory(self):
+        return self.statusRTSHistory
+
+    def clearRTSHistory(self):
+        self.statusRTSHistory = []

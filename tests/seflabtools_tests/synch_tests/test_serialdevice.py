@@ -18,23 +18,30 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 '''
 import unittest
-
-from seflabtools.loadgen import Controller
-from seflabtools.loadgen import CPUWorker
-from seflabtools.loadgen import HDDWorker
-
-class ControllerTest(unittest.TestCase):
+from seflabtools.synch.serialdevice import AbstractSerialDevice
 
 
-    def testStartCPU(self):
-        ctr = Controller(10, CPUWorker(True))
-        ctr.start()
+class AbstractSerialDeviceTest(unittest.TestCase):
 
-    def testStartHDD(self):
-        ctr = Controller(10, HDDWorker(False))
-        ctr.start()
+    def testConstructor(self):
+        deviceName = "device name"
+        d = AbstractSerialDevice(deviceName)
+
+        self.assertEqual(deviceName, d.deviceName)
+
+    def testInit(self):
+        deviceName = "device name"
+        d = AbstractSerialDevice(deviceName)
+
+        self.assertRaises(NotImplementedError, d.init)
+
+    def testSetRTS(self):
+        deviceName = "device name"
+        d = AbstractSerialDevice(deviceName)
+
+        self.assertRaises(NotImplementedError, d.setRTS, None)
 
 
 if __name__ == "__main__":
-    #import sys;sys.argv = ['', 'Test.testStart']
+    # import sys;sys.argv = ['', 'Test.testName']
     unittest.main()

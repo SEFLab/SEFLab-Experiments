@@ -74,12 +74,12 @@ class LoadgenPackageTest(unittest.TestCase):
 
 
     def testParseArgumentsOutputOptionButNoArgument(self):
-        argv = ["cmdName", "-s"]
+        argv = ["cmdName", "-o"]
         self.assertRaises(ArgumentsError, loadgen.parseArguments, argv)
 
 
     def testParseArgumentsOutputExpandedOptionButNoArgument(self):
-        argv = ["cmdName", "--serial"]
+        argv = ["cmdName", "--output"]
         self.assertRaises(ArgumentsError, loadgen.parseArguments, argv)
 
 
