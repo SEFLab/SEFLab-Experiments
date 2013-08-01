@@ -1,6 +1,6 @@
 '''
-SEFLab Tools is a software package that provides tools for running experiments in the SEFLab
-as well as for analyzing the resulting data.
+SEFLab Tools is a software package that provides tools for running experiments
+in the SEFLab as well as for analyzing the resulting data.
 
 Copyright (C) 2013  Software Improvement Group
 
@@ -21,6 +21,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 import random
 import time
 
+
 class Controller(object):
     '''
     classdocs
@@ -29,11 +30,10 @@ class Controller(object):
     def start(self):
         startTime = time.time()
         while time.time() - startTime < self.duration:
-            peakWidth = random.randrange(1,2)
-            peakInterval = random.randrange(1,2)
+            peakWidth = random.randrange(1, 2)
+            peakInterval = random.randrange(1, 2)
             self.worker.start(peakWidth)
             time.sleep(peakInterval)
-            
 
     def __init__(self, duration, worker):
         '''
@@ -41,4 +41,4 @@ class Controller(object):
         '''
         self.duration = duration
         self.worker = worker
-        random.seed(time.time())      
+        random.seed(time.time())

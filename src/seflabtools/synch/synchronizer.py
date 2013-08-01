@@ -30,7 +30,7 @@ class Synchronizer(object):
     classdocs
     '''
     pulseDuration = 1
-    
+
     def doSetup(self):
         self.serialDeviceWrapper.setRTS(False)
         print "RTS set to low... waiting 5 seconds"
@@ -40,10 +40,10 @@ class Synchronizer(object):
         self.serialDeviceWrapper.setRTS(True)
         time.sleep(seconds)
         self.serialDeviceWrapper.setRTS(False)
-        
+
     def runCommand(self, command):
         os.system(command)
-    
+
     def doRunFunction(self, function):
         self.doSetup()
         print "Starting"
@@ -72,9 +72,9 @@ class Synchronizer(object):
         for child in children:
             child.terminate()
         proc.terminate()
-        
+
     def doThreadedRun(self, commandToRunApplication, duration):
-        p = multiprocessing.Process(target = self.runCommand, args = [commandToRunApplication])
+        p = multiprocessing.Process(target=self.runCommand, args=[commandToRunApplication])
         self.doSetup()
         print "Starting"
         self.sendPulse(Synchronizer.pulseDuration)
@@ -86,7 +86,7 @@ class Synchronizer(object):
         self.sendPulse(Synchronizer.pulseDuration)
         print "Application terminated at timeout."
         self.printTimestamps(startTime, endTime, "run command for duration")
-        
+
     def doIdle(self, duration):
         self.doSetup()
         print "Starting"
@@ -108,9 +108,8 @@ class Synchronizer(object):
             f.write(", ")
             f.write(activity)
             f.write("\n")
-            f.close()  
-        
-        
+            f.close()
+
     def __init__(self, outputFile, serialDeviceWrapper):
         '''
         Constructor

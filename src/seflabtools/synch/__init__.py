@@ -30,6 +30,7 @@ from serialdevice import SerialDevice
 RUN_MODE = "run"
 IDLE_MODE = "idle"
 
+
 def getUsageInformation(cmdName):
     usageInformation = ""
     usageInformation += "Usage: {0} -m <mode> -s <serial_port> [-c <command>] [-d <idle duration>] [-o <file>\n".format(cmdName)
@@ -43,15 +44,16 @@ def getUsageInformation(cmdName):
     usageInformation += "-o\t\tdefines the file whereto usageInformation += the timestamps to."
     return usageInformation
 
+
 def parseArguments(argv):
     cmdName = os.path.basename(argv[0])
     usageInformation = getUsageInformation(cmdName)
     try:
-        opts, _ = getopt.getopt(argv[1:],"s:c:m:d:o:",["serial=", "command=", "mode=", "duration=", "output="])
+        opts, _ = getopt.getopt(argv[1:], "s:c:m:d:o:", ["serial=", "command=", "mode=", "duration=", "output="])
     except getopt.GetoptError as e:
         raise ArgumentsError(str(e), usageInformation)
     mode = None
-    serial = None
+    serialPort = None
     command = None
     durationString = None
     outputFile = None
@@ -59,41 +61,42 @@ def parseArguments(argv):
         if opt in ("-m", "--mode"):
             mode = arg
         elif opt in ("-s", "--serial"):
-            serial = arg
+            serialPort = arg
         elif opt in ("-c", "--command"):
             command = arg
         elif opt in ("-d", "--duration"):
             durationString = arg
         elif opt in ("-o", "--output"):
             outputFile = arg
-    if serial == None:
+    if serialPort == None:
         raise ArgumentsError("No serial port selected.", usageInformation)
     if mode == RUN_MODE and command == None:
         raise ArgumentsError("Tool set to run command but no command was defined.", usageInformation)
-    if mode == IDLE_MODE and durationString == None:
-        raise ArgumentsError("Tool set to idle but no duration was defined.", usageInformation)
+    if mode == IDLE_MODE and (durationString == None or durationString == "0"):
+        raise ArgumentsError("Tool set to idle but no valid duration was defined.", usageInformation)
     if outputFile != None:
         try:
             file(outputFile, 'a').close()
         except IOError as e:
             raise ArgumentsError("Can't write to output file for timestamps.\n" + str(e), usageInformation)
-    
-    duration = 0
+
+    duration = None
     if durationString != None:
         try:
             duration = float(durationString)
         except ValueError, e:
             raise ArgumentsError("Invalid duration: " + str(e), usageInformation)
-    
-    return mode, serial, command, duration, outputFile
-    
+
+    return (mode, serialPort, command, duration, outputFile)
+
+
 def main(argv):
-    mode, serialPort, command, duration, outputFile = parseArguments(argv)
-    
+    (mode, serialPort, command, duration, outputFile) = parseArguments(argv)
+
     serialDeviceWrapper = SerialDevice(serialPort)
     serialDeviceWrapper.init()
     synch = Synchronizer(serialDeviceWrapper, outputFile)
-    
+
     if mode == RUN_MODE:
         if duration == None:
             synch.doRun(command)
@@ -101,4 +104,3 @@ def main(argv):
             synch.doThreadedRun(command, duration)
     else:
         synch.doIdle(duration)
-        

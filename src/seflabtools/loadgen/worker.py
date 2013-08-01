@@ -26,12 +26,10 @@ from tempfile import TemporaryFile
 
 class Worker(object):
 
-
     def doWork(self):
         raise NotImplementedError("Method from abstract class not implemented")
 
-
-    def startWorkers(self, duration):
+    def startWorkers(self):
         ncpus = multiprocessing.cpu_count()
         processes = []
         for _ in range(1, random.randrange(1, ncpus + 1)):
@@ -41,11 +39,10 @@ class Worker(object):
         for p in processes:
             p.join()
 
-
     def start(self, duration):
         self.duration = duration
         if self.multiworker:
-            self.startWorkers(duration)
+            self.startWorkers()
         else:
             self.doWork()
 
@@ -53,14 +50,14 @@ class Worker(object):
         '''
         Constructor
         '''
-        raise NotImplementedError("Constructor of abstract class should not be called")
+        raise NotImplementedError(
+                "Constructor of abstract class should not be called")
 
 
 class CPUWorker(Worker):
     '''
     classdocs
     '''
-
 
     def doWork(self):
         startTime = time.time()
@@ -73,6 +70,7 @@ class CPUWorker(Worker):
         '''
         self.multiworker = multiworker
         random.seed(time.time())
+
 
 class HDDWorker(Worker):
     '''
