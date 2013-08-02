@@ -14,7 +14,7 @@ import stat
 import sys
 import tempfile
 import unittest
-from seflabtools_tests.synch_tests import MockSerialDevice
+
 
 
 class SynchPackageTest(unittest.TestCase):
@@ -149,6 +149,13 @@ class SynchPackageTest(unittest.TestCase):
         self.assertEquals("command", command)
         self.assertIsNone(duration)
         self.assertEquals(tmpFile, outputFile)
+
+    @patch.object(Synchronizer, "doIdle")
+    def testMainSerialTest(self, mockSyncronizerDoIdle):
+        argv = ["cmdName", "-s", "test", "-m", "idle", "-d", "1"]
+        synch.main(argv)
+
+        mockSyncronizerDoIdle.assert_called_with(1)
 
     @patch("seflabtools.synch.serialdevice.SerialDevice", spec=SerialDevice)
     @patch.object(SerialDevice, "init", new=lambda _: None)

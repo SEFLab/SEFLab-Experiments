@@ -24,20 +24,20 @@ from seflabtools.synch.serialdevice import AbstractSerialDevice
 class AbstractSerialDeviceTest(unittest.TestCase):
 
     def testConstructor(self):
-        deviceName = "device name"
-        d = AbstractSerialDevice(deviceName)
+        serialPort = "serial"
+        d = AbstractSerialDevice(serialPort)
 
-        self.assertEqual(deviceName, d.deviceName)
+        self.assertEqual(serialPort, d.serialPort)
 
     def testInit(self):
-        deviceName = "device name"
-        d = AbstractSerialDevice(deviceName)
+        serialPort = "serial"
+        d = AbstractSerialDevice(serialPort)
 
         self.assertRaises(NotImplementedError, d.init)
 
     def testSetRTS(self):
-        deviceName = "device name"
-        d = AbstractSerialDevice(deviceName)
+        serialPort = "serial"
+        d = AbstractSerialDevice(serialPort)
 
         self.assertRaises(NotImplementedError, d.setRTS, None)
 

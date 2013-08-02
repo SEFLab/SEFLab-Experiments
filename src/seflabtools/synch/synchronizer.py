@@ -23,6 +23,7 @@ import psutil
 import time
 import multiprocessing
 from datetime import datetime
+from seflabtools.synch import serialdevice
 
 
 class Synchronizer(object):
@@ -110,9 +111,9 @@ class Synchronizer(object):
             f.write("\n")
             f.close()
 
-    def __init__(self, outputFile, serialDeviceWrapper):
+    def __init__(self, serialPort, outputFile):
         '''
         Constructor
         '''
-        self.serialDeviceWrapper = serialDeviceWrapper
+        self.serialDeviceWrapper = serialdevice.getSerialDeviceWrapper(serialPort)
         self.outputFile = outputFile

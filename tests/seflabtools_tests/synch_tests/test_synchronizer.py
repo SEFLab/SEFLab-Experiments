@@ -17,18 +17,17 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 '''
-import unittest
-import sys
-import re
-import multiprocessing
-import time
-import psutil
-import tempfile
 from cStringIO import StringIO
 from datetime import datetime
-
+from seflabtools.synch import serialdevice
 from seflabtools.synch.synchronizer import Synchronizer
-from seflabtools_tests.synch_tests import MockSerialDevice
+import multiprocessing
+import psutil
+import re
+import sys
+import tempfile
+import time
+import unittest
 
 
 class SynchronizerTest(unittest.TestCase):
@@ -36,32 +35,30 @@ class SynchronizerTest(unittest.TestCase):
     def setUp(self):
         self.old_stdout = sys.stdout
         sys.stdout = self.mystdout = StringIO()
-        self.serialDeviceWrapper = MockSerialDevice("mockdevice")
-        self.serialDeviceWrapper.init()
+        self.serialPort = "test"
 
     def tearDown(self):
         sys.out = self.old_stdout
 
     def testDoSetup(self):
-        self.serialDeviceWrapper.setRTS(True)
-        synch = Synchronizer(None, self.serialDeviceWrapper)
+        synch = Synchronizer(self.serialPort, None)
         synch.doSetup()
 
-        self.assertEqual(False, self.serialDeviceWrapper.getRTS())
+        self.assertEqual(False, synch.serialDeviceWrapper.getRTS())
         self.assertEqual("RTS set to low... waiting 5 seconds\n", self.mystdout.getvalue())
 
     def testSendPulse(self):
-        synch = Synchronizer(None, self.serialDeviceWrapper)
+        synch = Synchronizer(self.serialPort, None)
         synch.sendPulse(1)
 
-        self.assertEqual([None, True], self.serialDeviceWrapper.getRTSHistory())
-        self.assertEqual(False, self.serialDeviceWrapper.getRTS())
+        self.assertEqual([None, True], synch.serialDeviceWrapper.getRTSHistory())
+        self.assertEqual(False, synch.serialDeviceWrapper.getRTS())
 
     def testRunCommand(self):
-        synch = Synchronizer(None, self.serialDeviceWrapper)
+        synch = Synchronizer(self.serialPort, None)
         synch.runCommand("ls")
 
-        self.assertEqual(None, self.serialDeviceWrapper.getRTS())
+        self.assertEqual(None, synch.serialDeviceWrapper.getRTS())
 
     def testDoRunFunction(self):
         matcher = re.compile("RTS set to low... waiting 5 seconds\n" +
@@ -69,28 +66,28 @@ class SynchronizerTest(unittest.TestCase):
                              "Function terminated.\n" +
                              "Start pulse sent at ' .* '; End Pulse sent at ' .* '\n")
         o = MockObjectWithFunction()
-        synch = Synchronizer(None, self.serialDeviceWrapper)
+        synch = Synchronizer(self.serialPort, None)
         synch.doRunFunction(o.someFunction)
 
         self.assertEqual(1, o.getValue())
         self.assertIsNotNone(matcher.match(self.mystdout.getvalue()))
-        self.assertEqual([None, False, True, False, True], self.serialDeviceWrapper.getRTSHistory())
-        self.assertEqual(False, self.serialDeviceWrapper.getRTS())
+        self.assertEqual([None, False, True, False, True], synch.serialDeviceWrapper.getRTSHistory())
+        self.assertEqual(False, synch.serialDeviceWrapper.getRTS())
 
     def testDoRun(self):
         matcher = re.compile("RTS set to low... waiting 5 seconds\n" +
                              "Starting\n" +
                              "Application terminated.\n" +
                              "Start pulse sent at ' .* '; End Pulse sent at ' .* '\n")
-        synch = Synchronizer(None, self.serialDeviceWrapper)
+        synch = Synchronizer(self.serialPort, None)
         synch.doRun("ls")
 
         self.assertIsNotNone(matcher.match(self.mystdout.getvalue()))
-        self.assertEqual([None, False, True, False, True], self.serialDeviceWrapper.getRTSHistory())
-        self.assertEqual(False, self.serialDeviceWrapper.getRTS())
+        self.assertEqual([None, False, True, False, True], synch.serialDeviceWrapper.getRTSHistory())
+        self.assertEqual(False, synch.serialDeviceWrapper.getRTS())
 
     def testTerminateProcessAndAllSubProcesses(self):
-        synch = Synchronizer(None, self.serialDeviceWrapper)
+        synch = Synchronizer(self.serialPort, None)
         o = MockObjectWithFunction()
         process = multiprocessing.Process(target=o.spawnSomeSubProcessesAndDoNothing, args=[])
         process.start()
@@ -99,7 +96,7 @@ class SynchronizerTest(unittest.TestCase):
         proc = psutil.Process(process.pid)
         children = proc.get_children(recursive=True)
 
-        self.assertIsNone(self.serialDeviceWrapper.getRTS())
+        self.assertIsNone(synch.serialDeviceWrapper.getRTS())
         self.assertEquals([], children)
 
     def testDoThreadedRun(self):
@@ -107,37 +104,37 @@ class SynchronizerTest(unittest.TestCase):
                              "Starting\n" +
                              "Application terminated at timeout.\n" +
                              "Start pulse sent at ' .* '; End Pulse sent at ' .* '\n")
-        synch = Synchronizer(None, self.serialDeviceWrapper)
+        synch = Synchronizer(self.serialPort, None)
         synch.doThreadedRun("sleep 10", 2)
 
         self.assertIsNotNone(matcher.match(self.mystdout.getvalue()))
-        self.assertEqual([None, False, True, False, True], self.serialDeviceWrapper.getRTSHistory())
-        self.assertEqual(False, self.serialDeviceWrapper.getRTS())
+        self.assertEqual([None, False, True, False, True], synch.serialDeviceWrapper.getRTSHistory())
+        self.assertEqual(False, synch.serialDeviceWrapper.getRTS())
 
     def testDoIdle(self):
         matcher = re.compile("RTS set to low... waiting 5 seconds\n" +
                              "Starting\n" +
                              "Idle period terminated.\n" +
                              "Start pulse sent at ' .* '; End Pulse sent at ' .* '\n")
-        synch = Synchronizer(None, self.serialDeviceWrapper)
+        synch = Synchronizer(self.serialPort, None)
         synch.doIdle(2)
 
         self.assertIsNotNone(matcher.match(self.mystdout.getvalue()))
-        self.assertEqual([None, False, True, False, True], self.serialDeviceWrapper.getRTSHistory())
-        self.assertEqual(False, self.serialDeviceWrapper.getRTS())
+        self.assertEqual([None, False, True, False, True], synch.serialDeviceWrapper.getRTSHistory())
+        self.assertEqual(False, synch.serialDeviceWrapper.getRTS())
 
     def testPrintTimestampsNoFile(self):
         matcher = re.compile("Start pulse sent at ' 2013-07-31 09:14:00 '; End Pulse sent at ' 2013-07-31 10:14:00 '\n")
-        synch = Synchronizer(None, self.serialDeviceWrapper)
+        synch = Synchronizer(self.serialPort, None)
         synch.printTimestamps(datetime(2013, 07, 31, 9, 14, 00), datetime(2013, 07, 31, 10, 14, 00), "test")
 
         self.assertIsNotNone(matcher.match(self.mystdout.getvalue()))
-        self.assertIsNone(self.serialDeviceWrapper.getRTS())
+        self.assertIsNone(synch.serialDeviceWrapper.getRTS())
 
     def testPrintTimestampsWithFile(self):
         (_, outputFile) = tempfile.mkstemp()
         matcher = re.compile("Start pulse sent at ' 2013-07-31 09:14:00 '; End Pulse sent at ' 2013-07-31 10:14:00 '\n")
-        synch = Synchronizer(outputFile, self.serialDeviceWrapper)
+        synch = Synchronizer(self.serialPort, outputFile)
         synch.printTimestamps(datetime(2013, 07, 31, 9, 14, 00), datetime(2013, 07, 31, 10, 14, 00), "test")
         fin = open(outputFile, "r")
         lines = fin.readlines()
@@ -145,7 +142,7 @@ class SynchronizerTest(unittest.TestCase):
         self.assertIsNotNone(matcher.match(self.mystdout.getvalue()))
         self.assertEqual(1, len(lines))
         self.assertEquals(["2013-07-31 09:14:00, 2013-07-31 10:14:00, test\n"], lines)
-        self.assertIsNone(self.serialDeviceWrapper.getRTS())
+        self.assertIsNone(synch.serialDeviceWrapper.getRTS())
 
 
 class MockObjectWithFunction(object):

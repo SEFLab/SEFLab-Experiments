@@ -17,16 +17,16 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 '''
-import os
-import sys
-import getopt
-
-from seflabtools.exceptions import ArgumentsError
 from controller import Controller
-from worker import CPUWorker
-from worker import HDDWorker
-from seflabtools.synch.synchronizer import Synchronizer  # @UnresolvedImport
-from seflabtools.synch.serialdevice import SerialDevice  # @UnresolvedImport
+from seflabtools.exceptions import ArgumentsError
+from seflabtools.synch import serialdevice
+from seflabtools.synch.synchronizer import Synchronizer
+from worker import CPUWorker, HDDWorker
+import getopt
+import os
+import seflabtools.synch.serialdevice
+import sys
+
 
 
 def getUsageInformation(cmdName):
@@ -87,8 +87,7 @@ def main(argv):
 
     ctr = Controller(duration, worker)
     if serialPort != None:
-        serialDeviceWrapper = SerialDevice(serialPort)
-        synch = Synchronizer(serialDeviceWrapper, outputFile)
+        synch = Synchronizer(serialdevice.getSerialDeviceWrapper(serialPort), outputFile)
         print "Generating load with synchronization pulses"
         synch.doRunFunction(ctr.start)
     else:

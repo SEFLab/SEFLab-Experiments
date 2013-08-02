@@ -17,15 +17,16 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 '''
+from seflabtools.exceptions import ArgumentsError
+from seflabtools.synch.serialdevice import MockSerialDevice
+from serialdevice import SerialDevice
+from synchronizer import Synchronizer
 import getopt
 import os
-import sys
 import serial
+import sys
 import time
 
-from seflabtools.exceptions import ArgumentsError
-from synchronizer import Synchronizer
-from serialdevice import SerialDevice
 
 RUN_MODE = "run"
 IDLE_MODE = "idle"
@@ -39,9 +40,11 @@ def getUsageInformation(cmdName):
     usageInformation += "  \t\tif duration is specified with mode run, then the tool will abort execution\n"
     usageInformation += "  \t\tafter the defined number of seconds.\n"
     usageInformation += "-s\t\tselects through which serial port to send the synchronization pulse.\n"
+    usageInformation += "  \t\tIf serial is set to 'test' then no serial device will be used but"
+    usageInformation += "  \t\ttimestamps will be generated as if it was."
     usageInformation += "-c\t\tdefines the command to execute.\n"
     usageInformation += "-d\t\tdefines the number of seconds the tool should idle for.\n"
-    usageInformation += "-o\t\tdefines the file whereto usageInformation += the timestamps to."
+    usageInformation += "-o\t\tdefines the file whereto usageInformation += the timestamps to.\n"
     return usageInformation
 
 
@@ -91,11 +94,13 @@ def parseArguments(argv):
 
 
 def main(argv):
-    (mode, serialPort, command, duration, outputFile) = parseArguments(argv)
+    (mode,
+     serialPort,
+     command,
+     duration,
+     outputFile) = parseArguments(argv)
 
-    serialDeviceWrapper = SerialDevice(serialPort)
-    serialDeviceWrapper.init()
-    synch = Synchronizer(serialDeviceWrapper, outputFile)
+    synch = Synchronizer(serialPort, outputFile)
 
     if mode == RUN_MODE:
         if duration == None:
