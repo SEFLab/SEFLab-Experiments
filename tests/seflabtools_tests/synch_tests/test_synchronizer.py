@@ -19,7 +19,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 '''
 from cStringIO import StringIO
 from datetime import datetime
-from seflabtools.synch import serialdevice
 from seflabtools.synch.synchronizer import Synchronizer
 import multiprocessing
 import psutil
